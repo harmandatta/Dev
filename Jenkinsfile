@@ -10,7 +10,7 @@ pipeline {
                     echo "List all"
                     ls -l
                     echo "Getting the files changed in last commit"
-                    printenv
+                    git diff --name-only $github_event_pull_request_merge_commit_sha
                 '''
             }
         }
