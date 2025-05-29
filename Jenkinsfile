@@ -15,10 +15,10 @@ pipeline {
                     second_last_merge_commit_sha=$(git log --merges --format=%H -n 2 | tail -n 1)
 
                     # Get list of files added or modified in the commit
-                    added_or_modified=$(git diff-tree --no-commit-id --name-status -r "$COMMIT_ID" | awk '$1 == "A" || $1 == "M" { print $2 }')
+                    added_or_modified=$(git diff-tree --no-commit-id --name-status -r $second_last_merge_commit_sha $github_event_pull_request_merge_commit_sha | awk '$1 == "A" || $1 == "M" { print $2 }')
                     
                     # Get list of files deleted in the commit
-                    deleted=$(git diff-tree --no-commit-id --name-status -r "$COMMIT_ID" | awk '$1 == "D" { print $2 }')
+                    deleted=$(git diff-tree --no-commit-id --name-status -r $second_last_merge_commit_sha $github_event_pull_request_merge_commit_sha | awk '$1 == "D" { print $2 }')
                     
                     # Filter out deleted files from added_or_modified
                     changed_list=()
