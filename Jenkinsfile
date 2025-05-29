@@ -26,6 +26,8 @@ pipeline {
                     for file in $added_or_modified; do
                       if ! echo "$deleted" | grep -qx "$file"; then
                         changed_list+=("$file")
+                      else
+                        deleted=$(echo "$deleted" | sed "s/${file}//g")
                       fi
                     done
 
