@@ -10,7 +10,7 @@ pipeline {
                     echo "List all"
                     ls -l
                     echo "Getting the files changed in last commit"
-                    echo "${params.merged}"
+                    printenv"
                 '''
             }
         }
