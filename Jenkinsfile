@@ -29,7 +29,9 @@ pipeline {
                       fi
                     done
 
-                    echo $changed_list
+                    for file in "${changed_list[@]}"; do
+                      echo "$file"
+                    done
                 '''
             }
         }
