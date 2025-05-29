@@ -9,8 +9,27 @@ pipeline {
                     pwd
                     echo "List all"
                     ls -l
+                    
                     echo "Getting the files changed in last commit"
-                    git diff-tree --no-commit-id --name-only -r $github_event_pull_request_merge_commit_sha
+                    # get the 2nd last merged sha
+                    second_last_merge_commit_sha=$(git log --merges --format=%H -n 2 | tail -n 1)
+
+                    # Get list of files added or modified in the commit
+                    added_or_modified=$(git diff-tree --no-commit-id --name-status -r "$COMMIT_ID" | awk '$1 == "A" || $1 == "M" { print $2 }')
+                    
+                    # Get list of files deleted in the commit
+                    deleted=$(git diff-tree --no-commit-id --name-status -r "$COMMIT_ID" | awk '$1 == "D" { print $2 }')
+                    
+                    # Filter out deleted files from added_or_modified
+                    changed_list=()
+                    
+                    for file in $added_or_modified; do
+                      if ! echo "$deleted" | grep -qx "$file"; then
+                        changed_list+=("$file")
+                      fi
+                    done
+
+                    echo $changed_list
                 '''
             }
         }
