@@ -1,15 +1,28 @@
 pipeline {
     agent any
     stages {
+        stage('Checkout Core Code') {
+            steps {
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/master']],
+                    userRemoteConfigs: [[
+                        url: "https://github.com/harmandatta/libraries.git"
+                    ]]
+                ])
+            }
+        }
+        
         stage("build"){
             steps {
                 echo 'building...'
                 sh '''
-                    printenv
                     echo "PWD"
                     pwd
                     echo "List all"
                     ls -l
+
+                    ls -l ../
                     
                     echo "Getting the files changed in last commit"
                     # get the 2nd last merged sha
