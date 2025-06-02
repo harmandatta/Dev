@@ -23,7 +23,7 @@ pipeline {
                     pwd
                     echo "List all"
                     ls -l
-
+                    ls -l ./other-repo
                     ls -l ../
                     
                     echo "Getting the files changed in last commit"
