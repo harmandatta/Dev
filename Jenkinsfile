@@ -5,6 +5,7 @@ pipeline {
             steps {
                 echo 'building...'
                 sh '''
+                    printenv
                     echo "PWD"
                     pwd
                     echo "List all"
