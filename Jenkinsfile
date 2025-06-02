@@ -3,13 +3,15 @@ pipeline {
     stages {
         stage('Checkout Core Code') {
             steps {
-                checkout([
-                    $class: 'GitSCM',
-                    branches: [[name: '*/main']],
-                    userRemoteConfigs: [[
-                        url: "https://github.com/harmandatta/libraries.git"
-                    ]]
-                ])
+                dir('other-repo'){
+                    checkout([
+                        $class: 'GitSCM',
+                        branches: [[name: '*/main']],
+                        userRemoteConfigs: [[
+                            url: "https://github.com/harmandatta/libraries.git"
+                        ]]
+                    ])   
+                }
             }
         }
         
