@@ -57,7 +57,7 @@ pipeline {
             }
             when {
                 allOf {
-                    expression { env.current_status == 'opened' }
+                    expression { env.current_status == '' }
                     expression { env.merged == 'false' }
                 }
             }
