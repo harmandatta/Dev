@@ -46,9 +46,11 @@
                     jq --arg k "$key" --arg v "$value" '. + {($k): $v}' json > tmp && mv tmp json
                     cat json
                     ''', returnStdout: true).trim()
+
+                    echo "$TEST_ENV_VAR"
+                    env.TEST_ENV_VAR = TEST_ENV_VAR
                 }
-                echo "$TEST_ENV_VAR"
-                env.TEST_ENV_VAR = TEST_ENV_VAR
+                
             }
         }
 
