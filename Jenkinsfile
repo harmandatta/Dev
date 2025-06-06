@@ -49,7 +49,8 @@
                     ''', returnStdout: true).trim()
 
                     echo "$TEST_ENV_VAR"
-                    env.TEST_ENV_VAR = TEST_ENV_VAR
+                    def jsonObj = readJSON text: TEST_ENV_VAR
+                    env.TEST_ENV_VAR = jsonObj.key1
                 }
                 
             }
