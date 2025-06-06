@@ -63,31 +63,38 @@
             }
             when {
                 allOf {
-                    expression { env.current_status == '' }
+                    expression { env.current_status == 'opened' }
                     expression { env.merged == 'false' }
                 }
             }
             steps {
                 echo 'step: PR open'
-                sh '''
-                    export GH_PR_NUMBER=`jq -r '.number' <<< "$gh_event"`
-                    echo "Checking for *.tfvars files in all the changed file..."
-                    targets=$tfVar_location
-                    files=`gh pr view $GH_PR_NUMBER --json files --jq '.files[].path'`
-                    echo $files
-                    for item in $files; do
-                        for pattern in $targets; do
-                            if echo "$item" | grep -q "$pattern" && echo "$item" | grep -qE "\\.txt$"; then
-                                echo "Matched item: $item with pattern: $pattern"
-                                # Transform pattern (replace '/' with '_') to make key
-                                key=$(echo "$pattern" | sed 's#/#_#g')
-                                echo "Setting env var: $key=\"$item\""
-                                export "$key"="$item"
-                            fi
+                echo "Checking for *.tfvars files in all the changed file..."
+                script {
+                    def checkResult = sh(script:'''
+                        export GH_PR_NUMBER=`jq -r '.number' <<< "$gh_event"`
+                        targets=$tfVar_location
+                        files=`gh pr view $GH_PR_NUMBER --json files --jq '.files[].path'`
+                        echo "{}" | cat > json
+                        for item in $files; do
+                            for pattern in $targets; do
+                                if echo "$item" | grep -q "$pattern" && echo "$item" | grep -qE "\\.txt$"; then
+                                    # Transform pattern (replace '/' with '_') to make key
+                                    key=$(echo "$pattern" | sed 's#/#_#g')
+                                    jq --arg k "$key" --arg v "$value" '. + {($k): $v}' json > tmp && mv tmp json
+                                fi
+                            done
                         done
-                    done
-                    echo "No matching *.tfvars files found."
-                '''
+                        cat json
+                    ''', returnStdout: true).trim()
+                    echo "$checkResult"
+                    
+                    def json = new groovy.json.JsonSlurper().parseText(checkResult)
+                    env.primary_region_dev = json.containsKey(primary_region_dev) ? json.primary_region_dev : ''
+                    env.primary_region_sit = json.containsKey(primary_region_sit) ? json.primary_region_sit : ''
+                    env.primary_region_uat = json.containsKey(primary_region_uat) ? json.primary_region_uat : ''
+                    env.primary_region_prod = json.containsKey(primary_region_prod) ? json.primary_region_prod : ''
+                }
             }
         }
         
