@@ -38,9 +38,16 @@ pipeline {
 
         stage('Pre-requisite'){
             steps{
-                sh '''
-                    export GH_PR_NUMBER=`jq -r '.number' <<< "$gh_event"`
-                '''
+                script {
+                    TEST_ENV_VAR = sh(script: '''
+                    echo "{}" | cat json
+                    key=`jq -r '.action' <<< "$gh_event"`
+                    value=`jq -r '.number' <<< "$gh_event"`
+                    jq --arg k "$key" --arg v "$value" '. + {($k): $v}' json > tmp && mv tmp json
+                    cat json
+                    ''', returnStdout: true).trim()
+                }
+                echo "$TEST_ENV_VAR"
             }
         }
 
@@ -56,6 +63,9 @@ pipeline {
             }
             steps {
                 echo 'step: PR open'
+                script {
+
+                }
                 sh '''
                     export GH_PR_NUMBER=`jq -r '.number' <<< "$gh_event"`
                     echo "Checking for *.tfvars files in all the changed file..."
@@ -64,7 +74,7 @@ pipeline {
                     echo $files
                     for item in $files; do
                         for pattern in $targets; do
-                            if echo "$item" | grep -q "$pattern" && echo "$item" | grep -qE "\\.tfvars$"; then
+                            if echo "$item" | grep -q "$pattern" && echo "$item" | grep -qE "\\.txt$"; then
                                 echo "Matched item: $item with pattern: $pattern"
                                 # Transform pattern (replace '/' with '_') to make key
                                 key=$(echo "$pattern" | sed 's#/#_#g')
