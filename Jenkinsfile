@@ -57,6 +57,7 @@ pipeline {
             steps {
                 echo 'step: PR open'
                 sh '''
+                    export GH_PR_NUMBER=`jq -r '.number' <<< "$gh_event"`
                     echo "Checking for *.tfvars files in all the changed file..."
                     targets=$tfVar_location
                     files=`gh pr view $GH_PR_NUMBER --json files --jq '.files[].path'`
