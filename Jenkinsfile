@@ -16,6 +16,9 @@ pipeline {
         }
         
         stage("build"){
+            environment{
+                GH_TOKEN = credentials('gh_pat')
+            }
             steps {
                 echo 'building...'
                 sh '''
@@ -25,31 +28,33 @@ pipeline {
                     ls -l
                     ls -l ./other-repo
                     ls -l ../
+
+                    gh pr view 18 --json files --jq '.files[].path'
                     
-                    echo "Getting the files changed in last commit"
+                    # echo "Getting the files changed in last commit"
                     # get the 2nd last merged sha
-                    second_last_merge_commit_sha=$(git log --merges --format=%H -n 2 | tail -n 1)
+                    # second_last_merge_commit_sha=$(git log --merges --format=%H -n 2 | tail -n 1)
 
                     # Get list of files added or modified in the commit
-                    added_or_modified=$(git diff-tree --no-commit-id --name-status -r $second_last_merge_commit_sha $github_event_pull_request_merge_commit_sha | awk '$1 == "A" || $1 == "M" { print $2 }')
+                    # added_or_modified=$(git diff-tree --no-commit-id --name-status -r $second_last_merge_commit_sha $github_event_pull_request_merge_commit_sha | awk '$1 == "A" || $1 == "M" { print $2 }')
                     
                     # Get list of files deleted in the commit
-                    deleted=$(git diff-tree --no-commit-id --name-status -r $second_last_merge_commit_sha $github_event_pull_request_merge_commit_sha | awk '$1 == "D" { print $2 }')
+                    # deleted=$(git diff-tree --no-commit-id --name-status -r $second_last_merge_commit_sha $github_event_pull_request_merge_commit_sha | awk '$1 == "D" { print $2 }')
                     
                     # Filter out deleted files from added_or_modified
-                    changed_list=()
+                    # changed_list=()
                     
-                    for file in $added_or_modified; do
-                      if ! echo "$deleted" | grep -qx "$file"; then
-                        changed_list+=("$file")
-                      else
-                        deleted=$(echo "$deleted" | sed "s/${file}//g")
-                      fi
-                    done
+                    # for file in $added_or_modified; do
+                    #   if ! echo "$deleted" | grep -qx "$file"; then
+                    #     changed_list+=("$file")
+                    #   else
+                    #     deleted=$(echo "$deleted" | sed "s/${file}//g")
+                    #   fi
+                    # done
 
-                    for file in "${changed_list[@]}"; do
-                      echo "$file"
-                    done
+                    # for file in "${changed_list[@]}"; do
+                    #   echo "$file"
+                    # done
                 '''
             }
         }
