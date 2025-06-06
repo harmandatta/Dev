@@ -1,4 +1,4 @@
-pipeline {
+ pipeline {
     agent any
 
     environment {
@@ -39,7 +39,7 @@ pipeline {
         stage('Pre-requisite'){
             steps{
                 script {
-                    TEST_ENV_VAR = sh(script: '''
+                    def TEST_ENV_VAR = sh(script: '''
                     echo "{}" | cat > json
                     key=`jq -r '.action' <<< "$gh_event"`
                     value=`jq -r '.number' <<< "$gh_event"`
@@ -48,6 +48,7 @@ pipeline {
                     ''', returnStdout: true).trim()
                 }
                 echo "$TEST_ENV_VAR"
+                env.TEST_ENV_VAR = TEST_ENV_VAR
             }
         }
 
