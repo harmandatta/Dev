@@ -1,5 +1,26 @@
 pipeline {
     agent any
+
+    environment {
+        
+        tfVar_location = "primary_region/dev primary_region/sit primary_region/uat primary_region/prod secondary_region/dev secondary_region/sit secondary_region/uat secondary_region/prod"
+
+        //pipeline configuration
+        //github endpoints
+        commits='/repos/harmandatta/Dev/commits'
+        
+        
+        //regions
+        dr_region = "ap-south-1"
+
+        //approval 
+        need_approval_primary_region_dev = false
+        need_approval_primary_region_sit = false
+        need_approval_primary_region_uat = false
+        need_approval_primary_region_prod = true
+        need_approval_secondary_region_prod = true
+    }
+    
     stages {
         stage('Checkout Core Code') {
             steps {
@@ -14,22 +35,51 @@ pipeline {
                 }
             }
         }
-        
-        stage("build"){
+
+        stage('PR open') {
             environment{
                 GH_TOKEN = credentials('gh_pat')
             }
+            when {
+                allOf {
+                    expression { env.current_status == 'open' }
+                    expression { env.merged == 'false' }
+                }
+            }
+            steps {
+                echo 'step: PR open'
+                sh '''
+                    echo "Checking for *.tfvars files in all the changed file..."
+                    targets=$tfVar_location
+                    files=`gh pr view $github_event_number --json files --jq '.files[].path'`
+                    echo $files
+                    for item in $files; do
+                        for pattern in $targets; do
+                            if echo "$item" | grep -q "$pattern" && echo "$item" | grep -qE "\\.tfvars$"; then
+                                echo "Matched item: $item with pattern: $pattern"
+                                # Transform pattern (replace '/' with '_') to make key
+                                key=$(echo "$pattern" | sed 's#/#_#g')
+                                echo "Setting env var: $key=\"$item\""
+                                export "$key"="$item"
+                            fi
+                        done
+                    done
+                    echo "No matching *.tfvars files found."
+                '''
+            }
+        }
+        
+        stage("build"){
             steps {
                 echo 'building...'
                 sh '''
+                    printenv
                     echo "PWD"
                     pwd
                     echo "List all"
                     ls -l
                     ls -l ./other-repo
                     ls -l ../
-
-                    gh pr view 18 --json files --jq '.files[].path'
                     
                     # echo "Getting the files changed in last commit"
                     # get the 2nd last merged sha
