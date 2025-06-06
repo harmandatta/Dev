@@ -90,10 +90,10 @@
                     echo "$checkResult"
                     
                     def json = new groovy.json.JsonSlurper().parseText(checkResult)
-                    env.primary_region_dev = json.containsKey(primary_region_dev) ? json.primary_region_dev : ''
-                    env.primary_region_sit = json.containsKey(primary_region_sit) ? json.primary_region_sit : ''
-                    env.primary_region_uat = json.containsKey(primary_region_uat) ? json.primary_region_uat : ''
-                    env.primary_region_prod = json.containsKey(primary_region_prod) ? json.primary_region_prod : ''
+                    env.primary_region_dev = json.containsKey('primary_region_dev') ? json.primary_region_dev : ''
+                    env.primary_region_sit = json.containsKey('primary_region_sit') ? json.primary_region_sit : ''
+                    env.primary_region_uat = json.containsKey('primary_region_uat') ? json.primary_region_uat : ''
+                    env.primary_region_prod = json.containsKey('primary_region_prod') ? json.primary_region_prod : ''
                 }
             }
         }
