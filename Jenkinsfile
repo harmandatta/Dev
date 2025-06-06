@@ -63,9 +63,6 @@ pipeline {
             }
             steps {
                 echo 'step: PR open'
-                script {
-
-                }
                 sh '''
                     export GH_PR_NUMBER=`jq -r '.number' <<< "$gh_event"`
                     echo "Checking for *.tfvars files in all the changed file..."
