@@ -49,6 +49,7 @@ pipeline {
             steps {
                 echo 'step: PR open'
                 sh '''
+                    echo $gh_event | jq -r '.number'
                     echo "Checking for *.tfvars files in all the changed file..."
                     targets=$tfVar_location
                     files=`gh pr view $github_event_number --json files --jq '.files[].path'`
