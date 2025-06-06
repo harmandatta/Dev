@@ -81,7 +81,7 @@
                                 if echo "$item" | grep -q "$pattern" && echo "$item" | grep -qE "\\.txt$"; then
                                     # Transform pattern (replace '/' with '_') to make key
                                     key=$(echo "$pattern" | sed 's#/#_#g')
-                                    jq --arg k "$key" --arg v "$value" '. + {($k): $v}' json > tmp && mv tmp json
+                                    jq --arg k "$key" --arg v "$item" '. + {($k): $v}' json > tmp && mv tmp json
                                 fi
                             done
                         done
