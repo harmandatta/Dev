@@ -36,6 +36,14 @@ pipeline {
             }
         }
 
+        stage('Pre-requisite'){
+            steps{
+                sh '''
+                    export GH_PR_NUMBER=`jq -r '.number' <<< "$gh_event"`
+                '''
+            }
+        }
+
         stage('PR open') {
             environment{
                 GH_TOKEN = credentials('gh_pat')
@@ -49,10 +57,9 @@ pipeline {
             steps {
                 echo 'step: PR open'
                 sh '''
-                    echo $gh_event | jq -r '.number'
                     echo "Checking for *.tfvars files in all the changed file..."
                     targets=$tfVar_location
-                    files=`gh pr view $github_event_number --json files --jq '.files[].path'`
+                    files=`gh pr view $GH_PR_NUMBER --json files --jq '.files[].path'`
                     echo $files
                     for item in $files; do
                         for pattern in $targets; do
