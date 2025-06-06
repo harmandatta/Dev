@@ -50,7 +50,7 @@
 
                     echo "$TEST_ENV_VAR"
                     def json = new groovy.json.JsonSlurper().parseText(TEST_ENV_VAR)
-                    env.TEST_ENV_VAR = ${json.key1} 
+                    env.TEST_ENV_VAR = json.key1 
                 }
                 
             }
