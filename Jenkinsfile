@@ -44,6 +44,7 @@
                     key=`jq -r '.action' <<< "$gh_event"`
                     value=`jq -r '.number' <<< "$gh_event"`
                     jq --arg k "$key" --arg v "$value" '. + {($k): $v}' json > tmp && mv tmp json
+                    jq --arg v "$value" '. + {"key1": $v}' json > tmp && mv tmp json
                     cat json
                     ''', returnStdout: true).trim()
 
