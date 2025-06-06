@@ -40,7 +40,7 @@ pipeline {
             steps{
                 script {
                     TEST_ENV_VAR = sh(script: '''
-                    echo "{}" | cat json
+                    echo "{}" | cat > json
                     key=`jq -r '.action' <<< "$gh_event"`
                     value=`jq -r '.number' <<< "$gh_event"`
                     jq --arg k "$key" --arg v "$value" '. + {($k): $v}' json > tmp && mv tmp json
